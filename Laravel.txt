@@ -1,0 +1,243 @@
+1. tạo project laravel
+	composer create-project --prefer-dist laravel/laravel project2MVC
+2. tạo csdl với PHP thủ công
+3. kết nối csdl với laravel
+	mở project cd <tên project>
+	code .	
+	vào file .env thiết lập môi trường 
+
+4. tạo bảng sử dụng laravel
+	php artisan make:migration create_categories_table
+	sửa file vừa nới tạo ra theo mong muốn trong thư mục database->migration
+	"php artisan migrate" quét thư mục database migrations xem có bảng nào "file nào" chưa thực thi thì thực thi và tạo bảng.
+5. tạo dữ liệu với faker/seeder.
+	- tạo file seeder "php artisan make:seeder CategoriesTableSeeder"
+	- vào file "database/seeders/CategoriesTableSeeder"
+	- add 2 thư viện:
+		use Illuminate\Support\Facades\DB;use Faker\Factory as Faker;
+	- sửa đổi phương thức run theo ý muốn
+     public function run(): void
+    {
+        $faker = Faker::create("vi_VN");
+        for ($i = 1; $i<=10; $i++)
+        {
+            DB::table("categories")->insert([
+                "name"=>$faker->word,
+                "description"=>$faker->sentence,
+                "namsx"=>$faker->numberBetween(1900, 2024),
+                "hsd"=>$faker->date($format = 'Y-m-d', $max = 'now'),
+            ]);
+        }
+    }
+
+	- thực thi file vừa sửa "php artisan db:seed --class=CategoriesTableSeeder"
+
+	- tạo model Category "php artisan make:model Category"
+	- tạo controler "php artisan make:controller usermaidinh -r"
+	- tạo cả controler và model "php artisan make:model Student -cr"
+
+
+	- Mở file controler và add model tương ứng.
+	-sửa lại roters 
+		b1. add controller "use App\Http\Controllers\CategoryController;"
+		b2. điều hướng tới Category "Route::resource('anhtu', anhtunek::class);"
+	-chạy chương trình "php artisan serve" chạy laravel project
+
+5. tạo view hiển thị dữ liệu cho người dùng
+
+
+6. chuyển hướng trong controller
+	return redirect()->route("categories.index");
+
+
+
+7. kiểu dữ liệu trong faker
+		"StudentGender"=>$faker->numberBetween(1, 2),
+		"ClassroomID"=>$faker->numberBetween(1, 10),
+		'StudentName' => $faker->name,
+                'StudentEmail' => $faker->unique()->safeEmail,
+                'StudentGender' => $faker->randomElement(['0', '1']),
+                'ClassroomID' => $faker->numberBetween(1, 10), // Điều chỉnh số lượng ClassroomID phù hợp
+                'Birthday' => $faker->date(),
+                'IsActive' => $faker->boolean(),
+		'url' => $faker->url,
+                'created_at' => now(),
+                'updated_at' => now(),
+
+khóa ngoại:
+$table->foreign('ClassroomID')->references('ClassroomID')->on('classrooms')->onDelete('cascade');
+
+
+
+$table->string('column_name',10);          
+'column_name' => $faker->numerify("0#########"), 
+
+
+
+8. tạo bảng tự động
+$table->integer('column_name');           // Số nguyên
+$table->bigInteger('column_name');        // Số nguyên lớn
+$table->smallInteger('column_name');      // Số nguyên nhỏ
+$table->tinyInteger('column_name');       // Số nguyên rất nhỏ
+$table->unsignedInteger('column_name');   // Số nguyên không dấu
+$table->unsignedBigInteger('column_name');// Số nguyên lớn không dấu
+
+$table->date('column_name');              // Ngày
+'column_name' => $faker->date($format = 'Y-m-d', $max = 'now')
+
+
+$table->dateTime('column_name');          // Ngày và giờ
+'column_name' => $faker->dateTime($max = 'now', $timezone = null), // Ngày và giờ
+
+$table->time('column_name');              // Giờ
+'column_name' => $faker->time($format = 'H:i:s', $max = 'now'), // Giờ
+
+$table->timestamp('column_name');         // Dấu thời gian
+$table->timestamps();                     // Tạo cột created_at và updated_at
+$table->softDeletes();                    // Tạo cột deleted_at để hỗ trợ xóa mềm
+'column_name' => $faker->dateTime($max = 'now', $timezone = null), // Dấu thời gian
+
+$table->boolean('column_name');           // Boolean (true/false)
+'column_name' => $faker->boolean, // Boolean (true/false)
+
+
+$table->float('column_name', 8, 2);       // Số thực với độ chính xác cố định (tổng 8 chữ số, 2 chữ số thập phân)
+'column_name' => $faker->randomFloat($nbMaxDecimals = 2, $min = 0, $max = 99999999.99), // Số thực với độ chính xác cố định (tổng 8 chữ số, 2 chữ số thập phân)
+
+
+$table->double('column_name', 15, 8);     // Số thực với độ chính xác gấp đôi
+'column_name' => $faker->randomFloat($nbMaxDecimals = 8, $min = 0, $max = 99999999.99999999), // Số thực với độ chính xác gấp đôi
+
+
+$table->decimal('column_name', 8, 2);     // Số thập phân với độ chính xác cố định (tổng 8 chữ số, 2 chữ số thập phân)
+'column_name' => $faker->randomNumber($nbDigits = 8),
+
+$table->binary('column_name');            // Dữ liệu nhị phân'
+'column_name' => $faker->randomAscii, // Dữ liệu nhị phân
+
+
+
+$table->enum('column_name', ['value1', 'value2', 'value3']); // Kiểu enum
+'column_name' => $faker->randomElement(['value1', 'value2', 'value3']), // Kiểu enum
+
+
+====================================================================================
+    <form id="delete-form" action="{{ route('item.destroy', $item->id) }}" method="POST" style="display: inline;">
+        @csrf
+        @method('DELETE')
+        <button type="button" class="btn btn-danger" onclick="confirmDelete()">Xóa</button>
+    </form>
+
+    <script>
+    function confirmDelete() {
+        if (confirm('Bạn có chắc chắn muốn xóa mục này không?')) {
+            document.getElementById('delete-form').submit();
+        }
+    }
+    </script>
+
+
+================================================================
+restrict: Ngăn chặn việc xóa một bản ghi trong bảng gốc nếu có bất kỳ bản ghi nào trong bảng tham chiếu đang tham chiếu đến nó. Điều này là mặc định nếu bạn không xác định bất kỳ hành động nào.
+cascade: Xóa tất cả các bản ghi trong bảng tham chiếu liên quan đến bản ghi bị xóa trong bảng gốc.
+set null: Đặt các cột tham chiếu trong bảng tham chiếu thành giá trị null khi bản ghi liên quan trong bảng gốc bị xóa.
+no action: Không thực hiện hành động nào. Điều này có thể tương đương với restrict trong một số trường hợp.
+================================================================
+Date time;
+date_default_timezone_set('Asia/Ho_Chi_Minh');
+$currentDateTime = date('Y-m-d H:i:s');
+$dateObject = new DateTime('2023-06-27');
+echo "Ngày giờ hiện tại: " . $currentDateTime;
+
+$date = new DateTime();
+$date->setTimezone(new DateTimeZone('Asia/Ho_Chi_Minh'));
+echo $date->format('Y-m-d H:i:s');
+
+ // Tạo đối tượng DateTime từ giá trị ngày của người dùng
+$dateTime = new DateTime($date);
+	// Đặt múi giờ thành 'Asia/Ho_Chi_Minh'
+	$timezone = new DateTimeZone('Asia/Ho_Chi_Minh');
+	$dateTime->setTimezone($timezone);
+// Định dạng và hiển thị ngày
+echo "Ngày bạn đã chọn: " . $dateTime->format('Y-m-d');
+
+==========================DATETIME===================================
+ "created_at"=> htmlspecialchars($created_at),
+  <input type="datetime-local" name="created_at" value="{{$flower->created_at}}"  class="form-control"/>
+
+
+==========================BOOTSTRAP==================================
+
+// 2 file bootstrap dat trong thu muc public
+link
+<link rel="stylesheet" href="/bootstrap-5.3.3/css/bootstrap.css">
+<link rel="stylesheet" href="/bootstrap-icons/font/bootstrap-icons.min.css">
+
+
+<link rel="stylesheet" href="/bootstrap-5.3.3/css/bootstrap.css">
+<script src="/bootstrap-5.3.3/js/bootstrap.js"></script>
+
+
+<i class="bi bi-ticket-detailed-fill"></i>	show chi tiết
+<i class="bi bi-plus-square-fill"></i>		add +
+<i class="bi bi-trash"></i>			xóa
+<i class="bi bi-pencil-square"></i>		sửa
+<i class="bi bi-skip-backward-fill"></i>	back
+
+======================================RADIO BUTTON==================================
+					
+<label for="male">
+            <input type="radio" id="male" name="Gender" value="0">
+            Nam
+</label><br>
+<label for="female">
+            <input type="radio" id="female" name="Gender" value="1">
+            Nữ
+</label><br>
+
+======================================CHECK BOX==================================
+					
+<label for="Headache">
+            <input type="checkbox" id="Headache" name="hobbies[]" value="Headache">
+            Head-ache
+</label><br>
+<label for="Backache">
+            <input type="checkbox" id="Backache" name="Backache[]" value="Backache">
+            Back-ache
+</label><br>
+
+
+====================================== Tạo ở nhà ========================
+LARAVEL
+thêm bootrap
+fix bootstap
+copy file view
+coppy route
+
+
+
+=======================================Validate alert ==================
+$existingRoom = Room::where('RoomNumber', $request->input('RoomNumber'))->first();
+   if ($existingRoom && $existingRoom->RoomID !== $room->RoomID) {
+            return redirect()->back()->withErrors(['RoomNumber' => 'Room number already exists.'])->withInput();
+
+
+
+$datdais = Datdai::where('MaChuSH', $chush->MaChuSH)->get();
+        }
+
+===========================Chỉ định table cho MODEL=====================
+protected $table = 'hanghoas';
+
+
+
+===========================Rand Có căn cứ =================================
+$bookIDs = DB::table('books')->pluck('BookID'); // Lấy danh sách BookID
+$userIDs = DB::table('users')->pluck('UserID');
+
+'BookID' => $bookIDs->get(rand(0, $bookIDs->count() - 1)),
+'UserID'=>  $userIDs->get(rand(0, $userIDs->count() - 1)),
+
+
+========================include một bảng mới =============================
+@include('comments.index', ['comments' => $comments])
